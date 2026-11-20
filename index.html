@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wheel of Life · วงล้อชีวิต</title>
+<title>Wheel of Life & Reflection</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#05070d">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="วงล้อชีวิต">
+<meta name="apple-mobile-web-app-title" content="Wheel of Life">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -49,13 +49,18 @@ nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accen
 .grid{display:grid;gap:16px}
 .g2{grid-template-columns:1.1fr .9fr}
 @media(max-width:820px){.g2{grid-template-columns:1fr}}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
 .stat .v{font-size:1.9rem;font-weight:700;line-height:1.1}
 .stat .l{color:var(--muted);font-size:.82rem}
 .delta{font-size:.82rem;font-weight:600;margin-left:6px}
 .up{color:var(--good)} .down{color:var(--warn)} .flat{color:var(--muted)}
-@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}}
+details.more{margin-top:14px}
+details.more>summary{cursor:pointer;color:var(--muted);font-size:.9rem;list-style:none;padding:6px 0}
+details.more>summary::-webkit-details-marker{display:none}
+details.more>summary::before{content:"+ ";color:var(--accent)}
+details.more[open]>summary::before{content:"– "}
+details.more>summary:hover{color:var(--gold2)}
 .radar-box{display:flex;justify-content:center}
 .radar-box svg{width:100%;max-width:470px;height:auto}
 .legend{display:flex;gap:14px;justify-content:center;color:var(--muted);font-size:.85rem;margin-top:6px;flex-wrap:wrap}
@@ -238,7 +243,7 @@ button:disabled{opacity:.35;cursor:not-allowed}
   <header class="top">
     <div class="brand">
       <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="38" r="17" fill="none" stroke="var(--accent)" stroke-width="1.6"/><path d="M20 21V13" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"/><circle cx="20" cy="9" r="5" fill="var(--accent)"/><circle cx="32" cy="8" r="1.1" fill="var(--ink)"/><circle cx="8" cy="12" r=".9" fill="var(--ink)"/></svg>
-      <h1>วงล้อชีวิต<small>Wheel of Life &amp; Reflection</small></h1>
+      <h1>Wheel of Life<small>&amp; Reflection</small></h1>
     </div>
     <div class="tools">
       <button id="dataBtn" class="btn-sm">ตั้งค่า</button>
@@ -426,10 +431,10 @@ function quickCard(){
   const e=dayEntry(today());
   if(!ui.day) ui.day={mood:e?.mood||0, tags:new Set(e?.tags||[])};
   return `<div class="card quick"><div class="qhead"><div><h2>วันนี้เป็นอย่างไร</h2>
-    <p class="sub">${e?"บันทึกวันนี้แล้ว · แก้ไขได้":"แตะอารมณ์และสิ่งที่เกิดขึ้น ไม่ถึง 10 วินาที"}</p></div>${moodStrip(14)}</div>
+    <p class="sub">${e?"บันทึกวันนี้แล้ว · แก้ไขได้":"แตะอารมณ์ แล้วกดบันทึก"}</p></div>${moodStrip(14)}</div>
     <div class="mood" role="group" aria-label="อารมณ์วันนี้">${MOOD_LABEL.map((l,i)=>`<button type="button" data-dmood="${i+1}" aria-pressed="${ui.day.mood===i+1}">${moodDot(i+1)}${l}</button>`).join("")}</div>
-    <div class="chips tags">${TAGS.map(t=>`<button class="chip" data-tag="${esc(t)}" aria-pressed="${ui.day.tags.has(t)}">${esc(t)}</button>`).join("")}</div>
-    <button class="btn-primary btn-sm" id="saveDay">${e?"อัปเดตวันนี้":"บันทึกวันนี้"}</button></div>`;
+    <details class="more"${ui.day.tags.size?" open":""}><summary>วันนี้ทำอะไรบ้าง (ไม่บังคับ)</summary><div class="chips tags">${TAGS.map(t=>`<button class="chip" data-tag="${esc(t)}" aria-pressed="${ui.day.tags.has(t)}">${esc(t)}</button>`).join("")}</div></details>
+    <button class="btn-primary btn-sm" id="saveDay" style="margin-top:12px">${e?"อัปเดตวันนี้":"บันทึกวันนี้"}</button></div>`;
 }
 function weeklyBanner(L){
   const last=L[L.length-1];
@@ -456,12 +461,10 @@ function viewHome(){
     return `<div class="arow"><div class="top"><span>${a.icon} ${esc(a.name)}</span><span><b>${v??"–"}</b>/10${deltaHtml(dOf(a))}</span></div><div class="bar"><span style="width:${(v||0)*10}%;background:${a.color}"></span></div></div>`}).join("");
   const [tt,td]=treeMsg(o);
   return top+`
-  <section class="hero card"><div class="jar">${planet(cur)}</div><div class="herotxt"><h2>${tt}</h2><p>${td}<br><small>ใบ 1 ใบ = 1 คะแนน · สีใบคือแต่ละด้านของชีวิต</small></p>
+  <section class="hero card"><div class="jar">${planet(cur)}</div><div class="herotxt"><h2>${tt}</h2><p>${td}<br><small>เช็คอินล่าสุด ${fmtDate(cur.date)} · ${L.length} ครั้ง</small></p>
   <div class="stats">
     <div class="stat"><div class="v">${o}${deltaHtml(od)}</div><div class="l">คะแนนเฉลี่ยรวม (เต็ม 10)</div></div>
-    <div class="stat"><div class="v">${b}%${deltaHtml(bd)}</div><div class="l">ความสมดุลของชีวิต</div></div>
-    <div class="stat"><div class="v">${L.length}</div><div class="l">ครั้งที่เช็คอิน · ล่าสุด ${fmtDate(cur.date)}</div></div>
-  </div></div></section>
+    <div class="stat"><div class="v">${b}%${deltaHtml(bd)}</div><div class="l">ความสมดุลของชีวิต</div></div>  </div></div></section>
   <div class="grid g2">
     <div class="card"><h2>วงล้อชีวิตของคุณ</h2><p class="sub">${prev?"เส้นประคือการเช็คอินครั้งก่อนหน้า":"เช็คอินอีกครั้งเพื่อเปรียบเทียบความเปลี่ยนแปลง"}</p>
       <div class="radar-box">${radar([...(prev?[{scores:prev.scores,stroke:"var(--muted)",dash:true}]:[]),{scores:cur.scores,stroke:"var(--accent)",fill:"color-mix(in srgb, var(--accent) 22%, transparent)"}])}</div>
@@ -469,7 +472,7 @@ function viewHome(){
     <div class="card"><h2>รายด้าน</h2><p class="sub">${AREAS.length} ด้าน · <button class="linkbtn" data-go="areas">ปรับด้านชีวิต</button></p><div class="rows">${rows}</div>
       <div class="insight"><b>ข้อสังเกต</b>
         ด้านที่ควรเติมพลังก่อน: <b style="display:inline">${low.icon} ${esc(low.name)}</b> (${sc(cur,low.key)}/10) · ด้านที่เป็นกำลังใจ: ${high.icon} ${esc(high.name)} (${sc(cur,high.key)}/10).
-        ${best?`<br>เติบโตมากที่สุดรอบนี้: ${best[0].icon} ${esc(best[0].name)} (+${r1(best[1])})`:""}${worst?`<br>ลดลงมากที่สุด: ${worst[0].icon} ${esc(worst[0].name)} (${r1(worst[1])}) คะแนนขึ้นลงเป็นเรื่องปกติ ลองถามตัวเองเบาๆ ว่าช่วงนี้เกิดอะไรขึ้น`:""}
+        ${worst?`<br><small style="color:var(--muted)">คะแนนขึ้นลงเป็นเรื่องปกติ ลองถามตัวเองเบาๆ ว่าช่วงนี้เกิดอะไรขึ้น</small>`:""}
         <br><button class="btn-sm" style="margin-top:8px" data-focus="${low.key}">ตั้งเป้าหมายให้ ${esc(low.name)}</button></div></div>
   </div>`;
 }
@@ -480,12 +483,13 @@ function viewCheck(){
   const d=ui.draft;
   const sl=AREAS.map(a=>`<div class="slider-row"><div class="h"><div><span class="n">${a.icon} ${esc(a.name)}</span>${a.hint?`<div class="hint">${esc(a.hint)}</div>`:""}</div><span class="val" id="v_${a.key}" style="color:${a.color}">${d.scores[a.key]}</span></div>
     <input type="range" min="1" max="10" step="1" value="${d.scores[a.key]}" data-slider="${a.key}" aria-label="${esc(a.name)}"></div>`).join("");
-  return `<div class="card"><h2>เช็คอินวงล้อชีวิต</h2><p class="sub">ให้คะแนน 1–10 ตามความพึงพอใจ ณ ตอนนี้ (1 = ต้องการดูแลมาก, 10 = พอใจเต็มที่) ตอบตามความรู้สึกจริง ไม่มีถูกผิด · <button class="linkbtn" data-go="areas">ปรับด้านชีวิต</button></p>
-    <label class="f" for="ci_date">วันที่</label><input type="date" id="ci_date" value="${d.date}" max="${today()}">
+  return `<div class="card"><h2>เช็คอินวงล้อชีวิต</h2><p class="sub">ให้คะแนน 1–10 ตามความพึงพอใจตอนนี้ (1 = ต้องดูแลมาก, 10 = พอใจเต็มที่) ·<button class="linkbtn" data-go="areas">ปรับด้านชีวิต</button></p>
     ${sl}
-    <label class="f">วันนี้ใจฉันรู้สึกอย่างไร</label>
+    <details class="more"${d.note?" open":""}><summary>เพิ่มบันทึก วันที่ หรืออารมณ์ (ไม่บังคับ)</summary>
+    <label class="f" for="ci_date">วันที่</label><input type="date" id="ci_date" value="${d.date}" max="${today()}">
+    <label class="f">อารมณ์ตอนนี้</label>
     <div class="mood" role="group" aria-label="อารมณ์">${MOOD_LABEL.map((l,i)=>`<button type="button" data-mood="${i+1}" aria-pressed="${ui.mood===i+1}">${moodDot(i+1)}${l}</button>`).join("")}</div>
-    <label class="f" for="ci_note">บันทึกสั้นๆ (ไม่บังคับ)</label><textarea id="ci_note" placeholder="เกิดอะไรขึ้นที่ทำให้ให้คะแนนแบบนี้?">${esc(d.note)}</textarea>
+    <label class="f" for="ci_note">บันทึกสั้นๆ</label><textarea id="ci_note" placeholder="เกิดอะไรขึ้นที่ทำให้ให้คะแนนแบบนี้?">${esc(d.note)}</textarea></details>
     <p style="margin:18px 0 0"><button class="btn-primary" id="saveCheck">บันทึกการเช็คอิน</button></p></div>`;
 }
 
@@ -511,7 +515,7 @@ function viewProgress(){
   const cmp=AREAS.map(a=>{const f=L.find(c=>sc(c,a.key)!==null), v=sc(last,a.key); return [a,f,v,f&&v!==null?v-sc(f,a.key):null];})
     .sort((p,q)=>(q[3]??-99)-(p[3]??-99)).map(([a,f,v,d])=>
     `<div class="arow"><div class="top"><span>${a.icon} ${esc(a.name)}</span><span>${f?sc(f,a.key):"–"} → <b>${v??"–"}</b>${deltaHtml(d)}</span></div></div>`).join("");
-  const hist=[...L].reverse().map(c=>`<div class="hitem"><div><div class="d">${fmtDate(c.date,true)} <span class="pill">${moodDot(c.mood)}${MOOD_LABEL[(c.mood||3)-1]}</span><span class="pill">เฉลี่ย ${overall(c)}</span><span class="pill">สมดุล ${balance(c)}%</span></div>${c.note?`<div class="m">${esc(c.note)}</div>`:""}</div><button class="btn-sm btn-ghost" data-delci="${c.id}" aria-label="ลบ">ลบ</button></div>`).join("");
+  const hist=[...L].reverse().map(c=>`<div class="hitem"><div><div class="d">${fmtDate(c.date,true)} <span class="pill">เฉลี่ย ${overall(c)}</span></div>${c.note?`<div class="m">${esc(c.note)}</div>`:""}</div><button class="btn-sm btn-ghost" data-delci="${c.id}" aria-label="ลบ">ลบ</button></div>`).join("");
   return `<div class="card chart"><h2>ความก้าวหน้าตามเวลา</h2><p class="sub">เส้นประหนา = คะแนนเฉลี่ยรวม · กดชื่อด้านเพื่อซ่อน/แสดง</p><div class="chips">${chips}</div>${lineChart(L)}</div>
   <div style="margin-top:16px">${dayCard()}</div>
   <div class="grid g2" style="margin-top:16px">
@@ -529,8 +533,8 @@ function viewReflect(){
     return `<div class="hitem"><div><div class="d">${fmtDate(r.date,true)} ${r.mood?`<span class="pill">${moodDot(r.mood)}${MOOD_LABEL[r.mood-1]}</span>`:""} ${fa?`<span class="pill">โฟกัส: ${fa.icon} ${esc(fa.name)}</span>`:""}</div>${body}</div><button class="btn-sm btn-ghost" data-delref="${r.id}">ลบ</button></div>`}).join("");
   return `<div class="grid g2"><div class="card"><h2>บันทึกสะท้อนตัวเอง</h2><p class="sub">ใช้เวลา 5 นาที เขียนเท่าที่อยากเขียน ข้อไหนไม่อยากตอบก็ข้ามได้ · คำถามเปลี่ยนทุกสัปดาห์ <button class="linkbtn" id="shufflePrompts">เปลี่ยนคำถาม</button></p>
     ${f}
-    <div class="row2"><div><label class="f" for="r_focus">ด้านที่จะโฟกัส</label><select id="r_focus"><option value="">— ไม่ระบุ —</option>${opts}</select></div>
-    <div><label class="f">อารมณ์</label><div class="mood" id="r_mood">${MOOD_LABEL.map((l,i)=>`<button type="button" data-rmood="${i+1}" aria-pressed="${ui.rMood===i+1}">${moodDot(i+1)}${l}</button>`).join("")}</div></div></div>
+    <details class="more"><summary>ระบุด้านที่จะโฟกัสและอารมณ์ (ไม่บังคับ)</summary><div class="row2"><div><label class="f" for="r_focus">ด้านที่จะโฟกัส</label><select id="r_focus"><option value="">— ไม่ระบุ —</option>${opts}</select></div>
+    <div><label class="f">อารมณ์</label><div class="mood" id="r_mood">${MOOD_LABEL.map((l,i)=>`<button type="button" data-rmood="${i+1}" aria-pressed="${ui.rMood===i+1}">${moodDot(i+1)}${l}</button>`).join("")}</div></div></div></details>
     <p style="margin:18px 0 0"><button class="btn-primary" id="saveRef">บันทึก</button></p></div>
     <div class="card"><h2>บันทึกที่ผ่านมา</h2><p class="sub">${S.reflections.length} รายการ</p><div class="hist">${list||'<div class="empty">ยังไม่มีบันทึก</div>'}</div></div></div>`;
 }
@@ -561,7 +565,7 @@ function viewAreas(){
 }
 
 /* ---------- render ---------- */
-const TABS=[["home","ภาพรวม"],["check","เช็คอิน"],["progress","ความก้าวหน้า"],["reflect","บันทึกสะท้อน"],["goals","เป้าหมาย"]];
+const TABS=[["home","ภาพรวม"],["check","เช็คอิน"],["progress","กราฟ"],["reflect","บันทึก"],["goals","เป้าหมาย"]];
 const VIEWS={home:viewHome,check:viewCheck,progress:viewProgress,reflect:viewReflect,goals:viewGoals,areas:viewAreas};
 function render(){
   $("#tabs").innerHTML=TABS.map(([k,l])=>`<button role="tab" data-tab="${k}" aria-selected="${tab===k}">${l}</button>`).join("");
